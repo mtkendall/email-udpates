@@ -1,0 +1,71 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+
+```{r, fig.width=10,fig.height=6}
+df <- read.csv('tracker.csv') %>% 
+  mutate(date = as.Date(date, '%m/%d/%Y')) %>%
+  mutate(gap_per_person = gap_to_previous/rotation) %>%
+  mutate(gap_per_person = replace_na(gap_per_person, 1)) %>%
+  mutate(gap_to_previous = replace_na(gap_to_previous, 10))
+
+
+p <- ggplot(data = df, aes(y = gap_to_previous, x = date, color = signator, size = word.count)) + 
+  geom_point() + 
+  scale_color_brewer(palette="Set2") + 
+  scale_size(range=c(3, 7)) + 
+  annotate(geom='text', label = 'I think Felz and I messed up\nour order early on', x=as.Date('2016-08-15'), y = 20.75, size = 3, hjust = 0) + 
+  annotate(geom='text', label = 'I stopped signing off with nicknames\nin 2019 for some reason?', x=as.Date('2019-05-15'), y = 16, size = 3, hjust = 1) + 
+  annotate(geom='text', label = 'Great turnaround during\nthe first quarantine cycle', x=as.Date('2020-08-01'), y = 9.5, size = 3, hjust = 0) + 
+  annotate(geom='text', label = 'First post-Stephen update, accelerating\nupward trend in return time after one \ncycle of good behavior', x=as.Date('2021-02-01'), y = 11.5, size = 3, hjust = 0) +   annotate(geom='text', label = 'My 2023 updates have been 75% longer\nthan my pre-2023 average. Matt stfu.', x=as.Date('2023-06-01'), y = 19, size = 3, hjust = 1) + 
+  ggtitle('Life Update Summary') + 
+  xlab('Date') + 
+  ylab('Weeks Between Updates') + 
+  labs(color = 'Signoff', size = 'Word Count') + 
+  theme_minimal() + 
+  theme(axis.line = element_line(color='black'),
+        plot.background = element_rect(fill = "white", color = "white"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = 'right',
+        aspect.ratio = 3/5)
+
+plot(p)
+ggsave('update.png', height = 6, width= 10)
+
+```
+
+```{r, fig.width=21,fig.height=7}
+df <- read.csv('squid_update_dwh.csv') %>% 
+  mutate(date = as.Date(date, '%Y-%m-%d')) %>%
+  mutate(days_since_prior = replace_na(days_since_prior, 7))
+
+p <- ggplot(data = df, aes(y = days_since_prior, x = date, color = author, size = word_count)) + 
+  geom_point() + 
+  scale_color_brewer(palette="Set3") + 
+  scale_size(range=c(3, 7)) + 
+  ggtitle('Life Update Summary') + 
+  xlab('Date') + 
+  ylab('Days Between Updates') + 
+  labs(color = 'Author', size = 'Word Count') + 
+  theme_minimal() + 
+  theme(axis.line = element_line(color='black'),
+        plot.background = element_rect(fill = "white", color = "white"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = 'right',
+        aspect.ratio = 1/3)
+
+plot(p)
+ggsave('update_all.png', height = 7, width= 21)
+
+```
